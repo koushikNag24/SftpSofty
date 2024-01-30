@@ -1,6 +1,6 @@
 <configuration>
     <configuration debug="true"/>
-    <property name="logDir" value="${user.home}/logs"/>
+    <property name="logDir" value="${user.home}${file.separator}logs"/>
     <property name="software_name" value="sftp_software"/>
     <property name="max_log_retention_days" value="7"/>
     <property name="max_log_retention_hours" value="1"/>
@@ -14,10 +14,10 @@
 
     <!-- Rolling File Appender -->
     <appender name="RollingFile"  class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logDir}/${software_name}.log</file>
+        <file>${logDir}${file.separator}${software_name}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 <!--            <fileNamePattern>${logDir}/${software_name}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>-->
-            <fileNamePattern>${logDir}/${software_name}-%d{yyyy-MM-dd_HH}.%i.log.gz</fileNamePattern>
+            <fileNamePattern>${logDir}${file.separator}${software_name}-%d{yyyy-MM-dd_HH}.%i.log.gz</fileNamePattern>
             <!-- The %i is used to differentiate rolled files (index) -->
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <!-- Roll-over every day -->
@@ -32,7 +32,7 @@
     </appender>
 
     <!-- Root Logger -->
-    <root level="info">
+    <root level="trace">
  <!--       <appender-ref ref="CONSOLE"/> -->
         <appender-ref ref="RollingFile"/>
 

@@ -26,8 +26,8 @@ public class App
         boolean keepDoing=true;
 
         while (keepDoing){
-
-        logger.trace("Starting");
+            String fileSeparator = System.getProperty("file.separator");
+        logger.trace(String.format("Starting %s",fileSeparator));
         if(args.length!=1){
             logger.error("No Configuration Information is passed via argument");
             return;
