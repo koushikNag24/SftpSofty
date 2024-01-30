@@ -1,0 +1,41 @@
+<configuration>
+    <configuration debug="true"/>
+    <property name="logDir" value="${user.home}/logs"/>
+    <property name="software_name" value="sftp_software"/>
+    <property name="max_log_retention_days" value="7"/>
+    <property name="max_log_retention_hours" value="1"/>
+    <!-- Console Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{40}:%line  - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <!-- Rolling File Appender -->
+    <appender name="RollingFile"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logDir}/${software_name}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+<!--            <fileNamePattern>${logDir}/${software_name}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>-->
+            <fileNamePattern>${logDir}/${software_name}-%d{yyyy-MM-dd_HH}.%i.log.gz</fileNamePattern>
+            <!-- The %i is used to differentiate rolled files (index) -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- Roll-over every day -->
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>${max_log_retention_hours}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{40}:%line | %method\(\)  - %msg%n</pattern>
+        </encoder>
+
+    </appender>
+
+    <!-- Root Logger -->
+    <root level="info">
+ <!--       <appender-ref ref="CONSOLE"/> -->
+        <appender-ref ref="RollingFile"/>
+
+    </root>
+
+</configuration>
