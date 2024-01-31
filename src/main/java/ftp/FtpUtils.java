@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
@@ -93,13 +96,19 @@ public class FtpUtils {
         File localDir = new File(localDirectory);
 
         File[] localDirectoryFiles=localDir.listFiles();
+
         if(localDirectoryFiles==null || localDirectoryFiles.length<1){
             logger.warn(String.format("No files to Transfer in %s", localDir));
             return;
         }
         for(File aFile : localDirectoryFiles){
+
             String remoteDirectory=remoteDir+ appConfig.getRemoteOsSeparator()+aFile.getName();
 //            logger.info("Attempt to create %s".formatted(remoteDirectory));
+            if(isFileModifiedWithinLast24Hours(aFile.toPath())){
+                logger.warn(String.format("[%s] is not 24 hours stale",aFile.getAbsolutePath()));
+                continue;
+            }
             if (aFile.isDirectory()) {
                 try {
                     channelSftp.mkdir(remoteDirectory);
@@ -133,6 +142,8 @@ public class FtpUtils {
                         recursivelyUploadDirectories(channelSftp, file.getAbsolutePath(), remoteDirectory,appConfig );
                     }
                 }
+
+                deleteEmptyDirectories(aFile);
             }else{
                 try {
                     logger.info(String.format("Attempting upload from %s to %s", aFile.getAbsolutePath(), remoteDirectory));
@@ -160,6 +171,47 @@ public class FtpUtils {
             logger.info(String.format("Error encountered while deleting %s",file));
         }
 
+    }
+    public static void deleteEmptyDirectories(File directory) {
+        if(isFileModifiedWithinLast24Hours(directory.toPath())){
+            logger.warn(String.format("[%s] is not 24 hours stale",directory.getAbsolutePath()));
+            return;
+        }
+        // Check if the directory exists
+        if (directory.exists()) {
+            // Get the list of files and subdirectories in the current directory
+            File[] files = directory.listFiles();
+
+            // Check if the directory is empty
+            if (files != null && files.length == 0) {
+                // Delete the empty directory
+                if (directory.delete()) {
+                    logger.info("Deleted empty directory: " + directory.getAbsolutePath());
+                } else {
+                    logger.info("Failed to delete directory: " + directory.getAbsolutePath());
+                }
+            } else if (files != null) {
+                // If the directory is not empty, recursively delete empty directories in its subdirectories
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        deleteEmptyDirectories(file);
+                    }
+                }
+            }
+        } else {
+            logger.info("Directory does not exist: " + directory.getAbsolutePath());
+        }
+    }
+    private static boolean isFileModifiedWithinLast24Hours(Path file) {
+        try {
+            FileTime lastModifiedTime = Files.getLastModifiedTime(file);
+            Instant twentyFourHoursAgo = Instant.now().minus(24, ChronoUnit.HOURS);
+
+            return lastModifiedTime.toInstant().isAfter(twentyFourHoursAgo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false; // Handle the exception according to your needs
+        }
     }
 //            Files.delete(localDir.toPath());
 //            logger.info(" %s was deleted successfully ? %s".formatted(localDir.getAbsolutePath(),!Files.exists(Path.of(localDir.getAbsolutePath()))));

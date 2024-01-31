@@ -17,13 +17,13 @@
         <file>${logDir}${file.separator}${software_name}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 <!--            <fileNamePattern>${logDir}/${software_name}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>-->
-            <fileNamePattern>${logDir}${file.separator}${software_name}-%d{yyyy-MM-dd_HH}.%i.log.gz</fileNamePattern>
+            <fileNamePattern>${logDir}${file.separator}${software_name}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <!-- The %i is used to differentiate rolled files (index) -->
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <!-- Roll-over every day -->
                 <maxFileSize>10MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
-            <maxHistory>${max_log_retention_hours}</maxHistory>
+            <maxHistory>${max_log_retention_days}</maxHistory>
         </rollingPolicy>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{40}:%line | %method\(\)  - %msg%n</pattern>
@@ -32,7 +32,7 @@
     </appender>
 
     <!-- Root Logger -->
-    <root level="trace">
+    <root level="info">
  <!--       <appender-ref ref="CONSOLE"/> -->
         <appender-ref ref="RollingFile"/>
 

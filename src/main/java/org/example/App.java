@@ -25,7 +25,7 @@ public class App
     {
         boolean keepDoing=true;
 
-        while (keepDoing){
+//        while (keepDoing){
             String fileSeparator = System.getProperty("file.separator");
         logger.trace(String.format("Starting %s",fileSeparator));
         if(args.length!=1){
@@ -62,6 +62,6 @@ public class App
             } catch (InterruptedException e) {
                logger.warn(String.format(" Issue While Sleeping %s",e.getMessage()));
             }
-        }
+//        }
     }
 }
